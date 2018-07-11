@@ -3,7 +3,8 @@ package codesquad.service;
 import codesquad.domain.Question;
 import codesquad.domain.QuestionRepository;
 import codesquad.domain.User;
-import codesquad.exception.QuestionModifyFailException;
+import codesquad.exception.QuestionDeleteFailException;
+import codesquad.exception.QuestionUpdateFailException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,18 +32,18 @@ public class QuestionService {
         return questionRepository.findById(id).get();
     }
 
-    public void deleteById(Long id, User user) throws QuestionModifyFailException {
+    public void deleteById(Long id, User user) {
         Question question = findById(id);
-        if(!question.isOwner(user))
-            throw new QuestionModifyFailException("자신의 글만 삭제할 수 있습니다.");
+        if (!question.isOwner(user))
+            throw new QuestionDeleteFailException();
 
         questionRepository.deleteById(id);
     }
 
-    public void updateById(Long id, Question updateQuestion, User user) throws QuestionModifyFailException {
+    public void updateById(Long id, Question updateQuestion, User user) {
         Question question = findById(id);
-        if(!question.updateQuestion(updateQuestion,user))
-            throw new QuestionModifyFailException("자신의 글만 수정할 수 있습니다.");
+        if (!question.updateQuestion(updateQuestion, user))
+            throw new QuestionUpdateFailException();
 
         questionRepository.save(question);
     }

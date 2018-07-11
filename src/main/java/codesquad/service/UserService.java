@@ -31,11 +31,11 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public void update(Long id, User sessionUser, User updateUser) throws UserUpdateFailException {
+    public void update(Long id, User sessionUser, User updateUser){
         User user = userRepository.findById(id).get();
 
         if(!sessionUser.isSameUser(user))
-            throw new UserUpdateFailException("자기 자신의 정보만 수정할 수 있습니다.");
+            throw new UserUpdateFailException();
         user.updateUser(updateUser);
         userRepository.save(user);
     }
@@ -44,10 +44,10 @@ public class UserService {
         return userRepository.findByUserId(userId).get();
     }
 
-    public User login(String userId, String password) throws UserLoginFailException {
+    public User login(String userId, String password){
         User loginUser = findByUserId(userId);
         if(!loginUser.isSamePassword(password))
-            throw new UserLoginFailException("비밀번호를 확인하기 바랍니다.");
+            throw new UserLoginFailException();
         return loginUser;
 
     }

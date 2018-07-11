@@ -1,16 +1,14 @@
 package codesquad.web;
 
 import codesquad.domain.User;
+import codesquad.exception.RedirectException;
 import codesquad.exception.UserLoginFailException;
 import codesquad.exception.UserUpdateFailException;
 import codesquad.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
@@ -26,22 +24,18 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("/login")
-    public String login () {
+    public String login() {
         return "/user/login";
     }
 
     @PostMapping("/login")
-    public String loginUser(String userId, String password, HttpSession session){
-        try{
-            session.setAttribute(SESSION_ID, userService.login(userId,password));
-            return "redirect:/";
-        }catch(UserLoginFailException e){
-            return "/user/login_failed";
-        }
+    public String loginUser(String userId, String password, HttpSession session) {
+        session.setAttribute(SESSION_ID, userService.login(userId, password));
+        return "redirect:/";
     }
 
     @GetMapping("/logout")
-    public String logoutUser(HttpSession session){
+    public String logoutUser(HttpSession session) {
         session.removeAttribute(SESSION_ID);
         return "redirect:/";
     }
@@ -77,16 +71,12 @@ public class UserController {
 
     @PostMapping("/{id}")
     public String update(@PathVariable Long id, User updated, HttpSession session) {
-        try {
-            User sessionUser = getSessionUser(session);
-            userService.update(id,sessionUser,updated);
-            return "redirect:/users";
-        } catch (UserUpdateFailException e) {
-            return "/user/updateForm_failed";
-        }
+        User sessionUser = getSessionUser(session);
+        userService.update(id, sessionUser, updated);
+        return "redirect:/users";
     }
 
-    public static User getSessionUser(HttpSession session){
+    public static User getSessionUser(HttpSession session) {
         return (User) session.getAttribute(UserController.SESSION_ID);
     }
 
