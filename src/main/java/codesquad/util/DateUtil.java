@@ -9,4 +9,8 @@ public class DateUtil {
         SimpleDateFormat formatter = new SimpleDateFormat(format);
         return formatter.format(date);
     }
+
+    public static String getFormatYyyymmddhhmm(Date date){
+        return getFormattedDate(date,"yyyy-MM-dd HH:mm");
+    }
 }

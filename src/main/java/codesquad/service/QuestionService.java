@@ -1,5 +1,6 @@
 package codesquad.service;
 
+import codesquad.domain.Answer;
 import codesquad.domain.Question;
 import codesquad.domain.QuestionRepository;
 import codesquad.domain.User;
@@ -7,6 +8,8 @@ import codesquad.exception.QuestionDeleteFailException;
 import codesquad.exception.QuestionUpdateFailException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class QuestionService {
@@ -22,6 +25,10 @@ public class QuestionService {
         return questionRepository.findAll();
     }
 
+    public List<Question> findAllByDeletedFalse(){
+        return questionRepository.findAllByDeletedFalse();
+    };
+
     public void save(Question question) {
         if (question.getTitle().isEmpty())
             return;
@@ -32,12 +39,12 @@ public class QuestionService {
         return questionRepository.findById(id).get();
     }
 
-    public void deleteById(Long id, User user) {
+    public void deleteById(Long id, User user, List<Answer> answers) {
         Question question = findById(id);
-        if (!question.isOwner(user))
+        if(!question.isDeleteQuestion(user,answers))
             throw new QuestionDeleteFailException();
-
-        questionRepository.deleteById(id);
+        question.setDeleted();
+        save(question);
     }
 
     public void updateById(Long id, Question updateQuestion, User user) {

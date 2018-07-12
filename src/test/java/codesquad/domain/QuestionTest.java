@@ -3,6 +3,11 @@ package codesquad.domain;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
 public class QuestionTest {
@@ -37,6 +42,24 @@ public class QuestionTest {
         updateQuestion.setTitle("제목");
 
         assertEquals(true, question.updateQuestion(updateQuestion, user));
+
+    }
+
+    @Test
+    public void isDeleteQuestion(){
+        User writer = user;
+        Question question = new Question(writer, "title", "contents");
+        List<Answer> answers = new ArrayList<>();
+        answers.add(new Answer(user,question,"reply contents"));
+        answers.add(new Answer(user,question,"reply contents2"));
+
+        assertThat(true,is(question.isDeleteQuestion(user,answers)));
+
+        User otherWriter = new User((long)2, "user","user","1234","abv@abc");
+        Answer otherAnswer = new Answer(otherWriter, question, "reply contents3");
+        answers.add(otherAnswer);
+
+        assertThat(question.isDeleteQuestion(user,answers),is(false));
 
     }
 

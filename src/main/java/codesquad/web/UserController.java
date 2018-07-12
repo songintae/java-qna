@@ -5,6 +5,7 @@ import codesquad.exception.RedirectException;
 import codesquad.exception.UserLoginFailException;
 import codesquad.exception.UserUpdateFailException;
 import codesquad.service.UserService;
+import codesquad.util.SessionUtill;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,7 +19,6 @@ import java.util.Optional;
 @Controller
 @RequestMapping("/users")
 public class UserController {
-    public final static String SESSION_ID = "sessionedUser";
 
     @Autowired
     private UserService userService;
@@ -30,13 +30,13 @@ public class UserController {
 
     @PostMapping("/login")
     public String loginUser(String userId, String password, HttpSession session) {
-        session.setAttribute(SESSION_ID, userService.login(userId, password));
+        SessionUtill.setSessionUser(session,userService.login(userId, password));
         return "redirect:/";
     }
 
     @GetMapping("/logout")
     public String logoutUser(HttpSession session) {
-        session.removeAttribute(SESSION_ID);
+        SessionUtill.removeSessionUser(session);
         return "redirect:/";
     }
 
@@ -71,13 +71,10 @@ public class UserController {
 
     @PostMapping("/{id}")
     public String update(@PathVariable Long id, User updated, HttpSession session) {
-        User sessionUser = getSessionUser(session);
+        User sessionUser = SessionUtill.getSessionUser(session);
         userService.update(id, sessionUser, updated);
         return "redirect:/users";
     }
 
-    public static User getSessionUser(HttpSession session) {
-        return (User) session.getAttribute(UserController.SESSION_ID);
-    }
 
 }

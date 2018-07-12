@@ -1,9 +1,11 @@
 package codesquad.domain;
 
 import codesquad.util.DateUtil;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 public class Question {
@@ -21,16 +23,26 @@ public class Question {
     @Column(nullable = false)
     private String contents;
     @Column(length = 16, nullable = false)
-    private String date;
+    private Date date;
 
+    @Column
+    @ColumnDefault(value = "false")
+    private boolean deleted;
 
     public Question() {
-        date = DateUtil.getFormattedDate(new Date(), "yyyy-MM-dd HH:mm");
+        date = new Date();
+        deleted = false;
     }
 
+    public Question(User writer, String title, String contents) {
+        this();
+        this.writer = writer;
+        this.title = title;
+        this.contents = contents;
+    }
 
     public String getDate() {
-        return date;
+        return DateUtil.getFormatYyyymmddhhmm(this.date);
     }
 
     public Long getId() {
@@ -77,5 +89,23 @@ public class Question {
         if (user == null)
             return false;
         return this.writer.isSameUser(user);
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted() {
+        this.deleted = true;
+    }
+
+    public boolean isDeleteQuestion(User user, List<Answer> answers) {
+        if(!writer.isSameUser(user))
+            return false;
+        for (Answer answer : answers) {
+            if(!answer.isWriter(user))
+                return false;
+        }
+        return true;
     }
 }
