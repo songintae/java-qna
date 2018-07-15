@@ -1,0 +1,15 @@
+<div class="qna-comment">
+    <div class="qna-comment-slipp">
+        <p class="qna-comment-count"><strong>{{answerCount}}</strong>개의 의견</p>
+        <div class="qna-comment-slipp-articles">
+            {{> qna/answer}}
+            <form class="submit-write" method="post" action = "/questions/{{id}}/answer">
+                <div class="form-group" style="padding:14px;">
+                    <textarea class="form-control" placeholder="Update your status" name = "contents"></textarea>
+                </div>
+                <button class="btn btn-success pull-right" type="submit">답변하기</button>
+                <div class="clearfix" />
+            </form>
+        </div>
+    </div>
+</div>

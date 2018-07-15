@@ -1,9 +1,6 @@
 package codesquad.web;
 
-import codesquad.domain.Answer;
-import codesquad.domain.AnswerRepository;
-import codesquad.domain.Question;
-import codesquad.domain.User;
+import codesquad.domain.*;
 import codesquad.exception.*;
 import codesquad.service.QuestionService;
 import codesquad.util.SessionUtill;
@@ -48,10 +45,10 @@ public class QuestionController {
 
     @GetMapping("/{id}")
     public String show(@PathVariable Long id, Model model) {
-        model.addAttribute("question", questionService.findById(id));
         List<Answer> answers = answerRepository.findAllByQuestionIdAndDeletedFalse(id);
-        model.addAttribute("answers", answers);
-        model.addAttribute("answerCount", answers.size());
+        QuestionDTO questionDTO = new QuestionDTO(questionService.findById(id),
+                answers);
+        model.addAttribute("questionDTO", questionDTO);
         return "/qna/show";
     }
 
@@ -78,24 +75,22 @@ public class QuestionController {
     }
 
     @PostMapping("/{questionId}/answer")
-    public String registerAnswer(@PathVariable long questionId, Answer answer, HttpSession session){
+    public String registerAnswer(@PathVariable long questionId, Answer answer, HttpSession session) {
         User loginUser = SessionUtill.getSessionUser(session);
         answer.setWriter(loginUser);
         answer.setQuestion(questionService.findById(questionId));
         answerRepository.save(answer);
-        return "redirect:/questions/"+questionId;
+        return "redirect:/questions/" + questionId;
     }
 
     @DeleteMapping("/{questionId}/answers/{answerId}")
-    public String deleteAnswer(@PathVariable long questionId, @PathVariable long answerId, HttpSession session){
+    public String deleteAnswer(@PathVariable long questionId, @PathVariable long answerId, HttpSession session) {
         User loginUser = SessionUtill.getSessionUser(session);
         Optional<Answer> mayBeAnswer = answerRepository.findById(answerId);
         mayBeAnswer.filter(answer -> answer.isWriter(loginUser)).orElseThrow(AnswerDeleteFailException::new);
         answerRepository.deleteById(answerId);
         return "redirect:/questions/" + questionId;
     }
-
-
 
 
 }
